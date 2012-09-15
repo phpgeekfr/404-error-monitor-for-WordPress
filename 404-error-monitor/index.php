@@ -262,7 +262,7 @@ class errorMonitor {
 		errorMonitor_DataTools::updatePluginOption('min_hit_count',($min_hit_count != '')?$min_hit_count:null);
 		errorMonitor_DataTools::updatePluginOption('ext_filter',($ext_filter != '')?$ext_filter:null);
 		errorMonitor_DataTools::updatePluginOption('path_filter',($path_filter != '')?$path_filter:null);
-
+		echo true;
 	}
 
 	/**
