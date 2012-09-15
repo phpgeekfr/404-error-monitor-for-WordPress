@@ -1,0 +1,153 @@
+<?php 
+/*
+ *     This file is part of 404 Error Monitor.
+ *     
+ *     404 Error Monitor is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *     
+ *     404 Error Monitor is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *    
+ *     You should have received a copy of the GNU General Public License
+ *     along with 404 Error Monitor.  If not, see <http://www.gnu.org/licenses/gpl-howto.html>.
+ */
+?>
+<?php 
+class errorMonitor_Error {
+
+	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param unknown_type $errorId
+	 */
+	public function delete($errorId = null) 
+	{	
+		if($errorId){
+			global $wpdb;
+			return $wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName()." WHERE id='".$errorId."';");
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param unknown_type $blogId
+	 */
+	public function deleteAll($blogId = null) 
+	{	
+		if($blogId != null){
+			global $wpdb;
+			return $wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id='".$blogId."';");
+		} else {
+			global $wpdb;
+			return $wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName().";");
+		}
+	}
+	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param unknown_type $url
+	 */
+	public function add($url)
+	{
+		//@todo devrai trouver le main domaine et ajouter une seule erreur pour test.com/dsds et test.fr/dsdsd
+		global $wpdb;
+		$url = str_replace(get_bloginfo('url'),'',$url);
+
+		if(!$this->errorExists($url)){
+			$data = array(
+				'blog_id' => get_current_blog_id(),
+				'url' => $url,
+				'count' => 1,
+				'referer' => wp_get_referer(),
+				'last_error' => date("Y-m-d H:i:s"),
+			);
+			return $wpdb->insert( errorMonitor_DataTools::getTableName(), $data );	
+		} else {
+			$referer = wp_get_referer();
+			if($referer!=''){
+				return $wpdb->query("UPDATE ".errorMonitor_DataTools::getTableName()." SET count=count+1, last_error = '".date("Y-m-d H:i:s")."', referer='".$referer."' WHERE url = '$url'");
+			} else {
+				return $wpdb->query("UPDATE ".errorMonitor_DataTools::getTableName()." SET count=count+1, last_error = '".date("Y-m-d H:i:s")."' WHERE url = '$url'");
+			}
+			
+		}		
+	}
+	
+	
+	/**
+	 * 
+	 * Retourne true si l'erreur est déja stockée
+	 * 
+	 * @param unknown_type $url
+	 */
+	public function errorExists($url = null)
+	{
+		if($url){
+			global $wpdb;
+			$rowId = $wpdb->get_var("SELECT id FROM ".errorMonitor_DataTools::getTableName()." WHERE url = '$url'");
+			if($rowId){
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param unknown_type $blogId
+	 */
+	public function getErrorList($blogId = null)
+	{
+		global $wpdb;
+		
+		$pathFilterArray = explode(';',errorMonitor_DataTools::getPluginOption("path_filter",null,true));
+		$subQuery = '';
+		foreach($pathFilterArray as $filter){
+			if($filter != "")
+				$subQuery .= " AND url NOT LIKE '".$filter."%'";
+		}
+		
+		$ext_filterArray = explode(',',errorMonitor_DataTools::getPluginOption("ext_filter",null,true));
+		$subQuery2 = '';
+		foreach($ext_filterArray as $filter){
+			if($filter != "")
+				$subQuery2 .= " AND url NOT LIKE '%".$filter."'";
+		}
+		
+		
+		if($blogId){
+			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+		} else {
+			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+					
+		}
+	}
+	
+	/**
+	 * 
+	 * Retourne le domaine du blog sur lequel a eu lieu l'erreur passée en parametres.
+	 * @param unknown_type $errorRow
+	 */
+	function getDomain($errorRow = null)
+	{
+		global $wpdb;
+		if(is_object($errorRow)){
+			return $wpdb->get_var("SELECT domain FROM ".errorMonitor_DataTools::getTableName('blogs')." WHERE blog_id = ".$errorRow->blog_id.";");
+		}
+	}
+	
+}
+?>

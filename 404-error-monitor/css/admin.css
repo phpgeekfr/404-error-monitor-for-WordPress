@@ -1,0 +1,34 @@
+/*
+ *     This file is part of 404 Error Monitor.
+ *     
+ *     404 Error Monitor is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *     
+ *     404 Error Monitor is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *    
+ *     You should have received a copy of the GNU General Public License
+ *     along with 404 Error Monitor.  If not, see <http://www.gnu.org/licenses/gpl-howto.html>.
+ */
+@CHARSET "UTF-8";
+
+.error_monitor-error-list .error_monitor-error-row {
+	
+}
+
+.error_monitor-error-list .error_monitor-error-row td {
+    padding: 5px;
+}
+
+.error_monitor-error-list tr td:last-child, .error_monitor-error-list tr th:last-child {
+	text-align: right;
+}
+
+
+.postbox .inside { padding-top: 5px; padding-left: 30px;}
+
+.postbox .inside li { list-style: square; }
