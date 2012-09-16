@@ -13,7 +13,7 @@
  *     GNU General Public License for more details.
  *    
  *     You should have received a copy of the GNU General Public License
- *     along with 404 Error Monitor.  If not, see <http://www.gnu.org/licenses/gpl-howto.html>.
+ *     along with 404 Error Monitor.  If not, see <http://www.gnu.org/licenses/gpl-3.0.html>.
  */
 ?>
 <div style="width:19%;" class="postbox-container">
