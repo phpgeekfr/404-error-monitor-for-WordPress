@@ -16,7 +16,7 @@
  */
 
 jQuery(document).ready( function($) {
-  $(".error_monitor-error-list .error_monitor-error-row td a").click( function() {
+  $(".error_monitor-error-list .error_monitor-error-row td .delete-single-entry").click( function() {
 	  var item = this;
 	  $.post($(this).attr("href"), {
 		  action: "deleteError",
@@ -24,7 +24,7 @@ jQuery(document).ready( function($) {
       }, function(data) {
     	  $('.wrap .error_monitor-message').html('');
     	  if(data == 0){
-    		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while removing entries.</p></div>');
+    		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while removing entry.</p></div>');
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>Entry <strong>removed </strong> successfully</p></div>');
 

@@ -125,9 +125,9 @@
 				</tr>
 			<?php }
 			foreach($errorsRowset as $row){
-			
+				$domain = $error->getDomain($row);
 				if($previousBlogId != $row->blog_id && is_network_admin()){
-					$domain = $error->getDomain($row);
+					
 					?>
 					<tr id="blog<?php echo $row->blog_id;?>">
 						<td colspan="4"><strong><a target="_blank"  href="<?php echo get_admin_url($row->blog_id);?>options-general.php?page=errorMonitor"><?php echo $domain;?></a></strong>   <a target="_blank" href="http://<?php echo $domain;?>">visit</a></td>
@@ -140,13 +140,14 @@
 					<td><a target="_blank" href="http://<?php echo $domain.$row->url;?>"><?php echo $row->url;?></a></td>
 					<td><?php echo $row->count;?></td>
 					<td>
-					<?php if($row->referer != ""):?>
-						<a target="_blank" href="<?php echo $row->referer;?>"><?php echo $row->referer;?></a></td>
-					<?php else:?>
-						--
-					<?php endif;?>
+						<?php if($row->referer != ""):?>
+							<a target="_blank" href="<?php echo $row->referer;?>"><?php echo $row->referer;?></a>
+						<?php else:?>
+							--
+						<?php endif;?>
+					</td>
 					<td><?php echo mysql2date(get_option('date_format'), $row->last_error);?>,  <?php echo mysql2date(get_option('time_format'), $row->last_error);?></td>
-					<td><a class="button-secondary" id="<?php echo $row->id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete</a></td>
+					<td><a class="delete-single-entry button-secondary" id="<?php echo $row->id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete</a></td>
 				</tr>
 			<?php 
 			 $previousBlogId = $row->blog_id;

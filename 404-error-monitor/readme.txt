@@ -4,7 +4,7 @@ Donate link:
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
 Tested up to: 3.4.2
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -24,3 +24,8 @@ e.g.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Configure settings. If you opted for a network install go to network admin dashboard to configure settings.
 1. Go to 404 Error monitor page to see error list. For network installation, use 404 Error monitor page from network admin dashboard to see error list for the entire network or use 404 Error monitor page located in the settings menu of an admin dashboard to see website error lists individually.
+
+== Changelog ==
+
+= 1.0.1 =
+* Corrected ajax call in errorList
