@@ -129,9 +129,9 @@ class errorMonitor_Error {
 		
 		
 		if($blogId){
-			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null,true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
 		} else {
-			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null,true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
 					
 		}
 	}
