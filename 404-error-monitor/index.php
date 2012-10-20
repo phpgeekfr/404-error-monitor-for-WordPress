@@ -19,7 +19,7 @@
  *     Plugin Name: 404 Error Monitor
  *     Plugin URI: http://www.php-geek.fr/plugin-wordpress-404-error-monitor.html
  *     Description: This plugin logs 404 (Page Not Found) errors on your WordPress site. It also logs useful informations like referrer, user address, and error hit count. It is fully compatible with a multisite configuration.
- *     Version: 1.0.1
+ *     Version: 1.0.3
  *     Author: Bruce Delorme
  *     Author URI: http://www.php-geek.fr
  */

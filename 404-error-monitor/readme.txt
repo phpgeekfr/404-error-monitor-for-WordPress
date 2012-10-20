@@ -4,7 +4,7 @@ Donate link:
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
 Tested up to: 3.4.2
-Stable tag: 1.0.1
+Stable tag: 1.0.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -29,3 +29,9 @@ e.g.
 
 = 1.0.1 =
 * Corrected ajax call in errorList
+
+= 1.0.2 =
+* for network install only: fixed mininum hit count setting problem.
+
+= 1.0.3 =
+* fixed referer issue: referer is not saved if is a wp admin page.
