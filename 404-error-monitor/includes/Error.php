@@ -58,7 +58,6 @@ class errorMonitor_Error {
 	 */
 	public function add($url)
 	{
-		//@todo devrai trouver le main domaine et ajouter une seule erreur pour test.com/dsds et test.fr/dsdsd
 		global $wpdb;
 		$url = str_replace(get_bloginfo('url'),'',$url);
 
@@ -73,7 +72,7 @@ class errorMonitor_Error {
 			return $wpdb->insert( errorMonitor_DataTools::getTableName(), $data );	
 		} else {
 			$referer = wp_get_referer();
-			if($referer!=''){
+			if($referer!='' && strpos($referer, get_bloginfo('url').'/wp-admin') === false){
 				return $wpdb->query("UPDATE ".errorMonitor_DataTools::getTableName()." SET count=count+1, last_error = '".date("Y-m-d H:i:s")."', referer='".$referer."' WHERE url = '$url'");
 			} else {
 				return $wpdb->query("UPDATE ".errorMonitor_DataTools::getTableName()." SET count=count+1, last_error = '".date("Y-m-d H:i:s")."' WHERE url = '$url'");

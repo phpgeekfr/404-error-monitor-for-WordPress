@@ -137,7 +137,7 @@
 				}
 				?>
 				<tr class="error_monitor-error-row" id="<?php echo $row->blog_id;?>">
-					<td><a target="_blank" href="http://<?php echo $domain.$row->url;?>"><?php echo $row->url;?></a></td>
+					<td><a target="_blank" href="<?php echo (substr($row->url, 0,  strlen('http://')) === 'http://')?$row->url:'http://'.$domain.$row->url;?>"><?php echo $row->url;?></a></td>
 					<td><?php echo $row->count;?></td>
 					<td>
 						<?php if($row->referer != ""):?>
