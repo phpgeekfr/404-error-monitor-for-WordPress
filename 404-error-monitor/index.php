@@ -183,17 +183,17 @@ class errorMonitor {
 	function add_admin_pages()
 	{
 		if(!errorMonitor_DataTools::getPluginOption('network-install')){
-			add_menu_page('errorMotinor', '404 Error Motinor', 'administrator', 'errorMotinor', array(&$this,'error_list_page'));
-			add_submenu_page('errorMotinor', 'Settings', 'Settings', 'administrator', 'errorMotinorSettings', array(&$this,'add_network_settings'));
+			add_menu_page('errorMonitor', '404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
+			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'administrator', 'errorMonitorSettings', array(&$this,'add_network_settings'));
 		} else {
-			add_options_page('errorMotinor','404 Error Motinor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
+			add_options_page('errorMonitor','404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
 		}
 	}
 	
 	function add_network_admin_pages() {
 		if(errorMonitor_DataTools::getPluginOption('network-install')){
-			add_menu_page('errorMotinor', '404 Error Motinor', 'administrator', 'errorMotinor', array(&$this,'error_list_page'));
-			add_submenu_page('errorMotinor', 'Settings', 'Settings', 'administrator', 'errorMotinorSettings', array(&$this,'add_network_settings'));
+			add_menu_page('errorMonitor', '404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
+			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'administrator', 'errorMonitorSettings', array(&$this,'add_network_settings'));
 		}
 	}
 

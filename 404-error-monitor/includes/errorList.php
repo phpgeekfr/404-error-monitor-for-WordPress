@@ -72,8 +72,8 @@
 								<h3 class="hndle"><span>Options</span></h3>
 								<div class="inside">
 									<ul>
-										<li><a href="<?php echo network_admin_url();?>admin.php?page=errorMotinor">Network admin error list</a></li>
-										<li><a href="<?php echo network_admin_url();?>admin.php?page=errorMotinorSettings">Network admin settings</a></li>
+										<li><a href="<?php echo network_admin_url();?>admin.php?page=errorMonitor">Network admin error list</a></li>
+										<li><a href="<?php echo network_admin_url();?>admin.php?page=errorMonitorSettings">Network admin settings</a></li>
 									</ul>
 								</div>
 							</div>
@@ -86,7 +86,7 @@
 								<h3 class="hndle"><span>Options</span></h3>
 								<div class="inside">
 									<ul>
-										<li><a href="<?php echo (errorMonitor_DataTools::isNetworkInstall())?network_admin_url():admin_url()?>admin.php?page=errorMotinorSettings">Settings</a></li>
+										<li><a href="<?php echo (errorMonitor_DataTools::isNetworkInstall())?network_admin_url():admin_url()?>admin.php?page=errorMonitorSettings">Settings</a></li>
 									</ul>
 								</div>
 							</div>
