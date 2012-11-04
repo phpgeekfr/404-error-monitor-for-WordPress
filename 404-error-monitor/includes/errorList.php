@@ -106,8 +106,7 @@
 				<th>Count</th>
 				<th>Referer</th>
 				<th>Last Error</th>
-				<th>
-					Delete 
+				<th style="width: 65px;">
 					<?php if(!$blog_id):?>
 						<a id="" class="button-primary error_monitor-delete-all" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a>
 					<?php else:?>
@@ -130,24 +129,24 @@
 					
 					?>
 					<tr id="blog<?php echo $row->blog_id;?>">
-						<td colspan="4"><strong><a target="_blank"  href="<?php echo get_admin_url($row->blog_id);?>options-general.php?page=errorMonitor"><?php echo $domain;?></a></strong>   <a target="_blank" href="http://<?php echo $domain;?>">visit</a></td>
-						<td class="error_monitor-delete-all-blog" ><a id="<?php echo $row->blog_id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">delete entries for this blog</a></td>
+						<td colspan="3"><strong><a target="_blank"  href="<?php echo get_admin_url($row->blog_id);?>options-general.php?page=errorMonitor"><?php echo $domain;?></a></strong>   <a target="_blank" href="http://<?php echo $domain;?>">visit</a></td>
+						<td colspan="2" class="error_monitor-delete-all-blog" ><a id="<?php echo $row->blog_id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">delete entries for this blog</a></td>
 					</tr>
 					<?php 
 				}
 				?>
 				<tr class="error_monitor-error-row" id="<?php echo $row->blog_id;?>">
-					<td><a target="_blank" href="<?php echo (substr($row->url, 0,  strlen('http://')) === 'http://')?$row->url:'http://'.$domain.$row->url;?>"><?php echo $row->url;?></a></td>
-					<td><?php echo $row->count;?></td>
+					<td><div><a target="_blank" title="<?php echo (substr($row->url, 0,  strlen('http://')) === 'http://')?$row->url:'http://'.$domain.$row->url;?>" href="<?php echo (substr($row->url, 0,  strlen('http://')) === 'http://')?$row->url:'http://'.$domain.$row->url;?>"><?php echo $row->url;?></a></div></td>
+					<td style="width: 38px;text-align:center;"><?php echo $row->count;?></td>
 					<td>
 						<?php if($row->referer != ""):?>
-							<a target="_blank" href="<?php echo $row->referer;?>"><?php echo $row->referer;?></a>
+							<div><a target="_blank" title="<?php echo $row->referer;?>" href="<?php echo $row->referer;?>"><?php echo $row->referer;?></a></div>
 						<?php else:?>
 							--
 						<?php endif;?>
 					</td>
-					<td><?php echo mysql2date(get_option('date_format'), $row->last_error);?>,  <?php echo mysql2date(get_option('time_format'), $row->last_error);?></td>
-					<td><a class="delete-single-entry button-secondary" id="<?php echo $row->id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete</a></td>
+					<td style="width: 205px;text-align:center;"><?php echo mysql2date(get_option('date_format'), $row->last_error);?>,  <?php echo mysql2date(get_option('time_format'), $row->last_error);?></td>
+					<td  style="text-align:center;"><a class="delete-single-entry button-secondary" id="<?php echo $row->id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete</a></td>
 				</tr>
 			<?php 
 			 $previousBlogId = $row->blog_id;

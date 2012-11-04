@@ -22,6 +22,15 @@
 
 .error_monitor-error-list .error_monitor-error-row td {
     padding: 5px;
+
+}
+
+.error_monitor-error-list .error_monitor-error-row td div{
+    color: #0088CC;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 505px;
 }
 
 .error_monitor-error-list tr td:last-child, .error_monitor-error-list tr th:last-child {
