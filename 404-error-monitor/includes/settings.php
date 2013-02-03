@@ -19,15 +19,17 @@
 
 <?php 
 	if (!function_exists('is_admin') || !is_admin()) {
-	    header('Status: 403 Forbidden');
-	    header('HTTP/1.1 403 Forbidden');
+		   ?><div class="wrap">
+		   		<div class="error" id="message"><p>You don't have the right to see this page</p></div>
+		   	</div><?php 
 	    exit();
 	}
 	
 	if(function_exists('is_network_admin') && is_network_admin()){
 		if (!function_exists('is_super_admin') || !is_super_admin()) {
-		    header('Status: 403 Forbidden');
-		    header('HTTP/1.1 403 Forbidden');
+		   ?><div class="wrap">
+		   		<div class="error" id="message"><p>You don't have the right to see this page</p></div>
+		   	</div><?php 
 		    exit();
 		} 
 	}
@@ -53,6 +55,12 @@
 											<tr class="form-field form-required">
 												<th scope="row">Minimum hit count</th>
 												<td><input type="text" id="min_hit_count" name="min_hit_count" value="<?php  echo errorMonitor_DataTools::getPluginOption("min_hit_count");?>"/></td>
+											</tr>
+											<tr class="form-field form-required">
+												<th scope="row">Remove entries that are more than</th>
+												<td>
+												<input type="text" size="5" id="clean_after" name="clean_after" value="<?php  echo errorMonitor_DataTools::getPluginOption("clean_after");?>"/>
+												days old.</td>
 											</tr>
 											<tr class="form-field form-required">
 												<th scope="row">Excluded files extensions</th>

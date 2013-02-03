@@ -19,7 +19,7 @@
  *     Plugin Name: 404 Error Monitor
  *     Plugin URI: http://www.php-geek.fr/plugin-wordpress-404-error-monitor.html
  *     Description: This plugin logs 404 (Page Not Found) errors on your WordPress site. It also logs useful informations like referrer, user address, and error hit count. It is fully compatible with a multisite configuration.
- *     Version: 1.0.4
+ *     Version: 1.0.5
  *     Author: Bruce Delorme
  *     Author URI: http://www.php-geek.fr
  */
@@ -116,22 +116,9 @@ class errorMonitor {
 		errorMonitor_DataTools::addPluginOption('min_hit_count','0');
 		errorMonitor_DataTools::addPluginOption('ext_filter','');
 		errorMonitor_DataTools::addPluginOption('path_filter','/wp-admin');
+		errorMonitor_DataTools::addPluginOption('clean_after','60');
+		errorMonitor_DataTools::addPluginOption('last_clean',mktime());
 		
-		if (function_exists('is_multisite') && is_multisite()) {
-			// check if it is a network activation - if so, run the activation function for each blog id
-			if ($networkwide) {
-				$old_blog = $wpdb->blogid;
-				// Get all blog ids
-				$blogids = $wpdb->get_col($wpdb->prepare("SELECT blog_id FROM $wpdb->blogs"));
-				//@todo si nombre de blog trop gros => gerer erreur (shuosin_memory_limit)
-				foreach ($blogids as $blog_id) {
-					switch_to_blog($blog_id);
-					$this->_activate($networkwide);
-				}
-				switch_to_blog($old_blog);
-				return;
-			}	
-		} 
 		$this->_activate($networkwide);	
 
 	}
@@ -141,28 +128,17 @@ class errorMonitor {
 		errorMonitor_DataTools::deletePluginOption('min_hit_count');
 		errorMonitor_DataTools::deletePluginOption('ext_filter');
 		errorMonitor_DataTools::deletePluginOption('path_filter');
+		errorMonitor_DataTools::deletePluginOption('clean_after');
+		errorMonitor_DataTools::deletePluginOption('last_clean');
 		
-		if (function_exists('is_multisite') && is_multisite()) {
-			// check if it is a network activation - if so, run the activation function for each blog id
-			if ($networkwide) {
-				$old_blog = $wpdb->blogid;
-				// Get all blog ids
-				$blogids = $wpdb->get_col($wpdb->prepare("SELECT blog_id FROM $wpdb->blogs"));
-				foreach ($blogids as $blog_id) {
-					switch_to_blog($blog_id);
-					$this->_deactivate($networkwide);
-				}
-				switch_to_blog($old_blog);
-				return;
-			}	
-		} 
 		$this->_deactivate($networkwide);
 	}	
 	
 	function _activate($networkwide) 
 	{
 		if($networkwide){
-			if(errorMonitor_DataTools::getPluginOption('network-install') == null){
+			$networkInstallOption = errorMonitor_DataTools::getPluginOption('network-install');
+			if( $networkInstallOption == null || $networkInstallOption == false){
 				errorMonitor_DataTools::addPluginOption('network-install',true);
 			}
 		}
@@ -212,6 +188,7 @@ class errorMonitor {
 		if ( function_exists( 'is_404' ) && is_404() ){
 			$error = new errorMonitor_Error();
 			$error->add($this->curPageURL());
+			$error->clean();
     	}
 	}
 	
@@ -245,6 +222,7 @@ class errorMonitor {
 		
 		$min_hit_count = $_POST['min_hit_count'];
 		$ext_filter = $_POST['ext_filter'];
+		$clean_after = $_POST['clean_after'];
 		$path_filterString = $_POST['path_filter'];
 		if(!is_numeric($min_hit_count)){
 			$min_hit_count = "0";
@@ -262,6 +240,12 @@ class errorMonitor {
 		errorMonitor_DataTools::updatePluginOption('min_hit_count',($min_hit_count != '')?$min_hit_count:null);
 		errorMonitor_DataTools::updatePluginOption('ext_filter',($ext_filter != '')?$ext_filter:null);
 		errorMonitor_DataTools::updatePluginOption('path_filter',($path_filter != '')?$path_filter:null);
+		errorMonitor_DataTools::updatePluginOption('clean_after',($clean_after != '')?$clean_after:null);
+		
+		//clean errors based on updated setting "clean_after"
+		$error = new errorMonitor_Error();
+		$error->clean(true);
+		
 		echo true;
 	}
 

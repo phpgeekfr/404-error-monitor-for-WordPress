@@ -3,8 +3,8 @@ Contributors: Bilbud
 Donate link: 
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
-Tested up to: 3.4.2
-Stable tag: 1.0.4
+Tested up to: 3.5.1
+Stable tag: 1.0.5
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -38,3 +38,7 @@ e.g.
 
 = 1.0.4 =
 * added some css to error list page.
+
+= 1.0.5 =
+* added new fonctionnality that clean entries that are older than the configured limit.
+* improved activate and deactivate methods.

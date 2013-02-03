@@ -28,9 +28,9 @@ jQuery(document).ready( function($) {
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>Entry <strong>removed </strong> successfully</p></div>');
 
-        	  if($("tr:[id^="+$(item).parent().parent().attr('id')+"]").length == 1){
-        		  $("tr:[id^=blog"+$(item).parent().parent().attr('id')+"]").fadeOut();
-        		  $("tr:[id^=blog"+$(item).parent().parent().attr('id')+"]").remove();
+        	  if($(".error_monitor-error-list tr[id^="+$(item).parent().parent().attr('id')+"]").length == 1){
+        		  $(".error_monitor-error-list tr[id^=blog"+$(item).parent().parent().attr('id')+"]").fadeOut();
+        		  $(".error_monitor-error-list tr[id^=blog"+$(item).parent().parent().attr('id')+"]").remove();
         	  }
 
         	  $(item).parent().parent().fadeOut();
@@ -52,10 +52,10 @@ jQuery(document).ready( function($) {
     		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while removing entries.</p></div>');
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>All entries have been <strong>removed</strong> successfully</p></div>');
-        	  $("tr:[id^=blog"+$(item).attr('id')+"]").fadeOut();
-        	  $("tr:[id^="+$(item).attr('id')+"]").fadeOut();
-        	  $("tr:[id^=blog"+$(item).attr('id')+"]").remove();
-        	  $("tr:[id^="+$(item).attr('id')+"]").remove();
+        	  $(".error_monitor-error-list tr[id^=blog"+$(item).attr('id')+"]").fadeOut();
+        	  $(".error_monitor-error-list tr[id^="+$(item).attr('id')+"]").fadeOut();
+        	  $(".error_monitor-error-list tr[id^=blog"+$(item).attr('id')+"]").remove();
+        	  $(".error_monitor-error-list tr[id^="+$(item).attr('id')+"]").remove();
 
     	  }
       }
@@ -74,10 +74,10 @@ jQuery(document).ready( function($) {
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>All blog entries have been <strong>removed</strong> successfully</p></div>');
 
-        	  $(".error_monitor-error-list tr:[id^=blog]").fadeOut();
-        	  $("tr:[class^=error_monitor-error-row]").fadeOut();
-        	  $(".error_monitor-error-list  tr:[id^=blog]").remove();
-        	  $("tr:[class^=error_monitor-error-row]").remove();
+        	  $(".error_monitor-error-list tr[id^=blog]").fadeOut();
+        	  $("tr[class^=error_monitor-error-row]").fadeOut();
+        	  $(".error_monitor-error-list  tr[id^=blog]").remove();
+        	  $("tr[class^=error_monitor-error-row]").remove();
 
     	  }
       }
@@ -102,7 +102,8 @@ jQuery(document).ready( function($) {
 		  action: "updatePluginSettings",
 		  min_hit_count: $("#min_hit_count").val(),
 		  ext_filter: $(form+" #ext_filter").val(),
-		  path_filter: $(form+" #path_filter").val()
+		  path_filter: $(form+" #path_filter").val(),
+		  clean_after: $(form+" #clean_after").val()
       }, function(data) {
     	  $('.wrap .error_monitor-message').html('');
     	  if(data == 0){

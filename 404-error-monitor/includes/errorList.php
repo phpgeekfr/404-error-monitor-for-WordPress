@@ -18,15 +18,17 @@
 ?>
 <?php 
 	if (!function_exists('is_admin') || !is_admin()) {
-	    header('Status: 403 Forbidden');
-	    header('HTTP/1.1 403 Forbidden');
+		   ?><div class="wrap">
+		   		<div class="error" id="message"><p>You don't have the right to see this page</p></div>
+		   	</div><?php 
 	    exit();
 	}
 	
 	if(function_exists('is_network_admin') && is_network_admin()){
 		if (!function_exists('is_super_admin') || !is_super_admin()) {
-		    header('Status: 403 Forbidden');
-		    header('HTTP/1.1 403 Forbidden');
+		   ?><div class="wrap">
+		   		<div class="error" id="message"><p>You don't have the right to see this page</p></div>
+		   	</div><?php 
 		    exit();
 		} 
 	}
@@ -120,7 +122,7 @@
 			$errorsRowset = $error->getErrorList($blog_id);
 			if(sizeof($errorsRowset) == 0){ ?>
 				<tr>
-					<td colspan="5" style="text-align:center;">No errors (minimum hit count: <?php  echo errorMonitor_DataTools::getPluginOption("min_hit_count",null,true);?>)</td>
+					<td colspan="5" style="text-align:center;">No errors (minimum hit count: <?php  echo errorMonitor_DataTools::getPluginOption("min_hit_count",null);?>)</td>
 				</tr>
 			<?php }
 			foreach($errorsRowset as $row){

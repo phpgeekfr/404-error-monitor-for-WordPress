@@ -36,35 +36,55 @@ class errorMonitor_DataTools {
 
 	public static function isNetworkInstall()
 	{
-		if(self::getPluginOption('network-install') == true){
-			return true;
-		} else {
+		if(defined('BLOG_ID_CURRENT_SITE')){
+			//check if main blog has network-install option
+			return get_blog_option(BLOG_ID_CURRENT_SITE, ERROR_REPORT_PLUGIN_NAME . '-network-install',false);
+		}else {
 			return false;
 		}
 	}
 	
 	public static function addPluginOption($option,$value, $deprecated = '', $autoload = 'yes')
 	{
-		add_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value, $deprecated, $autoload );
+		if(self::isNetworkInstall()){
+			add_blog_option(BLOG_ID_CURRENT_SITE, ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value);
+		} else {
+			add_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value, $deprecated, $autoload );	
+		}
+		
 	}
 	
 	public static function updatePluginOption($option,$value = null, $deprecated = '', $autoload = 'yes')
 	{
-		if(self::getPluginOption($option,'not_set') != "not_set"){
-			update_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value);
+		if(self::isNetworkInstall()){
+			if(self::getPluginOption($option,'not_set') != "not_set"){
+				update_blog_option(BLOG_ID_CURRENT_SITE,ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value);
+			} else {
+				add_blog_option(BLOG_ID_CURRENT_SITE,ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value);
+			}
 		} else {
-			add_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value, $deprecated, $autoload );
+			if(self::getPluginOption($option,'not_set') != "not_set"){
+				update_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value);
+			} else {
+				add_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option, $value, $deprecated, $autoload );
+			}
 		}
+		
 	}
 	
 	public static function deletePluginOption($option)
 	{
-		delete_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option );
+		if(self::isNetworkInstall()){
+			delete_blog_option(BLOG_ID_CURRENT_SITE, ERROR_REPORT_PLUGIN_NAME . '-' . $option );
+		} else {
+			delete_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option );
+		}
+		
 	}
 	
-	public static function getPluginOption($option,$default = null, $networkAdminOption = false)
+	public static function getPluginOption($option,$default = null)
 	{
-		if(get_option(ERROR_REPORT_PLUGIN_NAME . '-network-install') && $networkAdminOption == true){
+		if(self::isNetworkInstall()){
 			return get_blog_option(BLOG_ID_CURRENT_SITE, ERROR_REPORT_PLUGIN_NAME . '-' . $option,$default);
 		} else {
 			return get_option(ERROR_REPORT_PLUGIN_NAME . '-' . $option,$default);

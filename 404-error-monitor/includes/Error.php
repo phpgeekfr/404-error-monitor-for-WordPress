@@ -54,6 +54,29 @@ class errorMonitor_Error {
 	/**
 	 * 
 	 * Enter description here ...
+	 */
+	public function clean($force = false)
+	{
+		$lastClean = errorMonitor_DataTools::getPluginOption('last_clean',null);
+		$cleanAfter = errorMonitor_DataTools::getPluginOption('clean_after',null);
+		
+		if($lastClean != null && $cleanAfter != null){
+			$currentTimestamp = mktime();
+			$nextClean = $lastClean + ($cleanAfter * 86400);
+			if($currentTimestamp > $nextClean || $force){
+				global $wpdb;
+				$wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName()." WHERE UNIX_TIMESTAMP(last_error) < '".($currentTimestamp - ($cleanAfter * 86400))."';");
+				errorMonitor_DataTools::updatePluginOption('last_clean',$currentTimestamp);
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
+	/**
+	 * 
+	 * Enter description here ...
 	 * @param unknown_type $url
 	 */
 	public function add($url)
@@ -112,14 +135,14 @@ class errorMonitor_Error {
 	{
 		global $wpdb;
 		
-		$pathFilterArray = explode(';',errorMonitor_DataTools::getPluginOption("path_filter",null,true));
+		$pathFilterArray = explode(';',errorMonitor_DataTools::getPluginOption("path_filter",null));
 		$subQuery = '';
 		foreach($pathFilterArray as $filter){
 			if($filter != "")
 				$subQuery .= " AND url NOT LIKE '".$filter."%'";
 		}
 		
-		$ext_filterArray = explode(',',errorMonitor_DataTools::getPluginOption("ext_filter",null,true));
+		$ext_filterArray = explode(',',errorMonitor_DataTools::getPluginOption("ext_filter",null));
 		$subQuery2 = '';
 		foreach($ext_filterArray as $filter){
 			if($filter != "")
@@ -128,9 +151,9 @@ class errorMonitor_Error {
 		
 		
 		if($blogId){
-			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null,true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
 		} else {
-			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null,true)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
 					
 		}
 	}

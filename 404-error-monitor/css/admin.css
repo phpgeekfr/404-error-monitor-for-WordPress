@@ -37,6 +37,9 @@
 	text-align: right;
 }
 
+#error_monitor-settings-form #clean_after, #error_monitor-settings-form #min_hit_count{
+	width: 50px;
+}
 
 .postbox .inside { padding-top: 5px; padding-left: 30px;}
 
