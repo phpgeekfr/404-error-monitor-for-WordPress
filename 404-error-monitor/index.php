@@ -19,7 +19,7 @@
  *     Plugin Name: 404 Error Monitor
  *     Plugin URI: http://www.php-geek.fr/plugin-wordpress-404-error-monitor.html
  *     Description: This plugin logs 404 (Page Not Found) errors on your WordPress site. It also logs useful informations like referrer, user address, and error hit count. It is fully compatible with a multisite configuration.
- *     Version: 1.0.5
+ *     Version: 1.0.6
  *     Author: Bruce Delorme
  *     Author URI: http://www.php-geek.fr
  */
@@ -90,6 +90,7 @@ class errorMonitor {
 		add_action('wp_ajax_deleteAllErrors', array(&$this,'deleteBlogErrors') );
 		add_action('wp_ajax_deleteBlogErrors', array(&$this,'deleteBlogErrors') );
 		add_action('wp_ajax_updatePluginSettings', array(&$this,'updatePluginSettings') );
+		add_action('wp_ajax_exportErrorList', array(&$this,'exportErrorList') );
 		$this->enqueueScript('admin.js');
 		$this->enqueueStyle('admin.css');
 	}
@@ -237,6 +238,19 @@ class errorMonitor {
 				}
 			}
 		} 
+		
+		if($ext_filter != ''){
+			$ext_filter_tmp= array();
+			foreach(explode(',',$ext_filter) as $ext){
+				
+				if(substr($ext,0,1) !='.'){
+					$ext = '.'.$ext;
+				}
+				$ext_filter_tmp[] = $ext;
+			}
+			$ext_filter = implode(',',$ext_filter_tmp);
+		}
+		
 		errorMonitor_DataTools::updatePluginOption('min_hit_count',($min_hit_count != '')?$min_hit_count:null);
 		errorMonitor_DataTools::updatePluginOption('ext_filter',($ext_filter != '')?$ext_filter:null);
 		errorMonitor_DataTools::updatePluginOption('path_filter',($path_filter != '')?$path_filter:null);
@@ -247,6 +261,36 @@ class errorMonitor {
 		$error->clean(true);
 		
 		echo true;
+	}
+	
+	function exportErrorList()
+	{
+      	header('Content-type: text/csv');
+		header('Content-disposition: attachment;filename=404-error-monitor-export.csv');
+		
+		$error = new errorMonitor_Error();
+		
+		$itemId = $_GET['item-id'];
+		
+		if($itemId != 'null'){
+			$blogId = $itemId;
+		} else {
+			$blogId = null;
+		}
+		$errorsRowset = $error->getErrorList($blogId);
+		
+		$eol = "\n";
+		echo "URL;Count;Referer;Last Error".$eol;
+		foreach($errorsRowset as $row){
+			$domain = $error->getDomain($row);
+			if($row->referer != ""){
+				$referer = $row->referer;
+			} else {
+				$referer = "--";
+			}
+			echo $domain.$row->url.";".$row->count.";".$referer.";".$row->last_error.";".$eol;
+		}
+		die;
 	}
 
 	/**

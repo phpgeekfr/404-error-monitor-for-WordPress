@@ -44,3 +44,7 @@
 .postbox .inside { padding-top: 5px; padding-left: 30px;}
 
 .postbox .inside li { list-style: square; }
+
+#error_monitor-export-form {
+    margin: 10px 0;
+}

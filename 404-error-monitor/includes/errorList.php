@@ -66,7 +66,8 @@
 					function_exists('is_multisite') &&
 					function_exists('is_super_admin') &&
 					is_multisite()&&
-					is_super_admin()):?>
+					is_super_admin()):
+					?>
 			
 					<div style="width:79%;" class="postbox-container">
 						<div class="meta-box-sortables ui-sortable" style="min-height: 120px;" id="normal-sortables">
@@ -101,6 +102,9 @@
 	</div>
 	<br class="clear" />
 	<h3>Error list</h3>
+	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
+		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
+	</form>
 	<table class="widefat error_monitor-error-list" cellspacing="0">
 		<thead>
 			<tr>
@@ -155,4 +159,7 @@
 			}?>
 		</tbody>
 	</table>
+	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
+		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
+	</form>
 </div><?php 

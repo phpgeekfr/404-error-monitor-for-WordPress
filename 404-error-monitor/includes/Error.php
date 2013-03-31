@@ -146,7 +146,7 @@ class errorMonitor_Error {
 		$subQuery2 = '';
 		foreach($ext_filterArray as $filter){
 			if($filter != "")
-				$subQuery2 .= " AND url NOT LIKE '%".$filter."'";
+				$subQuery2 .= " AND url NOT LIKE '%".$filter."%'";
 		}
 		
 		

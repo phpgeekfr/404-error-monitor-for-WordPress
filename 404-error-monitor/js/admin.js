@@ -117,5 +117,14 @@ jQuery(document).ready( function($) {
 	);
 	  return false;
   });
+  
+  $("#error_monitor-export-form #export_btn").click(function(){
+	  
+	var itemId = null;
+	if($(this).attr('item-id') != ''){
+		itemId = $(this).attr('item-id');
+	}
+	location.href = $(this).closest("form").attr('action')+"?action=exportErrorList"+"&item-id="+itemId;
+ });
 });
 
