@@ -100,7 +100,7 @@ class errorMonitor_DataTools {
 		} else {
 			$wpdb->errorReportTable = $wpdb->prefix . self::LOG_TABLE;
 		}
-		if ( $wpdb->get_var("SHOW TABLES LIKE '{$wpdb->errorReportTable}'") != $wpdb->errorReportTable ) {
+		if ( !self::_tableExist($wpdb->errorReportTable) ) {
 			$wpdb->query( "CREATE TABLE IF NOT EXISTS `{$wpdb->errorReportTable}` (
 				`id` bigint(20) NOT NULL auto_increment,
 				`blog_id` bigint(20) NOT NULL,
@@ -110,6 +110,16 @@ class errorMonitor_DataTools {
 				`last_error` datetime NOT NULL,
 				PRIMARY KEY  (`id`)
 			);" );
+		}
+	}
+	
+	public static function _tableExist($tableName)
+	{
+		global $wpdb;
+		if($wpdb->get_var("SHOW TABLES LIKE '{$tableName}'") == $tableName){
+			return true;
+		} else {
+			return false;
 		}
 	}
 	

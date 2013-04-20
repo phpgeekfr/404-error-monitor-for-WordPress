@@ -4,7 +4,7 @@ Donate link:
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
 Tested up to: 3.5.1
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -46,3 +46,6 @@ e.g.
 = 1.0.6 =
 * added export fonctionnality.
 * improved extension filters.
+
+= 1.0.7 =
+* corrected display of url in error list page for single site installations.

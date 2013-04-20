@@ -129,6 +129,8 @@
 					<td colspan="5" style="text-align:center;">No errors (minimum hit count: <?php  echo errorMonitor_DataTools::getPluginOption("min_hit_count",null);?>)</td>
 				</tr>
 			<?php }
+			
+			$previousBlogId = '';
 			foreach($errorsRowset as $row){
 				$domain = $error->getDomain($row);
 				if($previousBlogId != $row->blog_id && is_network_admin()){

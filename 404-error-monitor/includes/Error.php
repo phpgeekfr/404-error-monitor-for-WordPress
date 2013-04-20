@@ -166,8 +166,14 @@ class errorMonitor_Error {
 	function getDomain($errorRow = null)
 	{
 		global $wpdb;
-		if(is_object($errorRow)){
-			return $wpdb->get_var("SELECT domain FROM ".errorMonitor_DataTools::getTableName('blogs')." WHERE blog_id = ".$errorRow->blog_id.";");
+		
+		$tableName = errorMonitor_DataTools::getTableName('blogs');
+		if(errorMonitor_DataTools::isNetworkInstall() && errorMonitor_DataTools::_tableExist($tableName)){
+			if(is_object($errorRow)){
+				return $wpdb->get_var("SELECT domain FROM ".$tableName." WHERE blog_id = ".$errorRow->blog_id.";");
+			}
+		} else {
+			return str_replace(array('http://','https://'),'',get_bloginfo( 'wpurl'));
 		}
 	}
 	
