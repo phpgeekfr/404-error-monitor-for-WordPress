@@ -43,21 +43,13 @@
 	}
 	
 ?>
-<div class="wrap">  
+<div class="wrap error_monitor_plugin">  
 	<div class="icon32" id="icon-edit"><br></div><h2>404 Error Monitor - Error list</h2>
 	<div class="error_monitor-message"></div>
 	<div id="dashboard-widgets-wrap">
 		<div id="dashboard-widgets-wrap">
 			
 			<div class="metabox-holder" id="dashboard-widgets">
-
-
-		
-
-			
-
-
-
 
 			    <?php if(
 			    	$blog_id &&
@@ -102,9 +94,16 @@
 	</div>
 	<br class="clear" />
 	<h3>Error list</h3>
-	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
-		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
-	</form>
+	<?php 
+	$errorsRowset = $error->getErrorList($blog_id);
+	$errorCount = count($errorsRowset);
+	
+	?>
+	<?php if($errorCount != 0):?>
+    	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
+    		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
+    	</form>
+    <?php endif;?>
 	<table class="widefat error_monitor-error-list" cellspacing="0">
 		<thead>
 			<tr>
@@ -113,18 +112,22 @@
 				<th>Referer</th>
 				<th>Last Error</th>
 				<th style="width: 65px;">
-					<?php if(!$blog_id):?>
-						<a id="" class="button-primary error_monitor-delete-all" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a>
-					<?php else:?>
-						<span class="error_monitor-delete-all-blog"><a id="<?php echo $blog_id;?>" class="button-primary" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a></span>
-					<?php endif;?>
+					<?php if($errorCount != 0):?>
+    					<?php if(!$blog_id):?>
+    						<a id="" class="button-primary error_monitor-delete-all" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a>
+    					<?php else:?>
+    						<span class="error_monitor-delete-all-blog"><a id="<?php echo $blog_id;?>" class="button-primary" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a></span>
+    					<?php endif;?>
+    				<?php else:?>
+    				  <?php echo "--";?>
+    				<?php endif;?>
 				</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php 
-			$errorsRowset = $error->getErrorList($blog_id);
-			if(sizeof($errorsRowset) == 0){ ?>
+			
+			if($errorCount == 0){ ?>
 				<tr>
 					<td colspan="5" style="text-align:center;">No errors (minimum hit count: <?php  echo errorMonitor_DataTools::getPluginOption("min_hit_count",null);?>)</td>
 				</tr>
@@ -161,7 +164,9 @@
 			}?>
 		</tbody>
 	</table>
+	<?php if($errorCount != 0):?>
 	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
 		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
 	</form>
+	<?php endif;?>
 </div><?php 

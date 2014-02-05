@@ -36,7 +36,7 @@
 	
 ?>
 
-<div class="wrap">
+<div class="wrap error_monitor_plugin">
 	<div class="icon32" id="icon-tools"><br></div>
 	<h2>404 Error Monitor - Settings</h2>
 	<div class="error_monitor-message"></div>

@@ -82,7 +82,6 @@ class errorMonitor_Error {
 	public function add($url)
 	{
 		global $wpdb;
-		$url = str_replace(get_bloginfo('url'),'',$url);
 
 		if(!$this->errorExists($url)){
 			$data = array(
@@ -90,7 +89,7 @@ class errorMonitor_Error {
 				'url' => $url,
 				'count' => 1,
 				'referer' => wp_get_referer(),
-				'last_error' => date("Y-m-d H:i:s"),
+				'last_error' => current_time( 'mysql' ),
 			);
 			return $wpdb->insert( errorMonitor_DataTools::getTableName(), $data );	
 		} else {

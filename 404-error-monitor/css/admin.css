@@ -41,9 +41,9 @@
 	width: 50px;
 }
 
-.postbox .inside { padding-top: 5px; padding-left: 30px;}
+.error_monitor_plugin .postbox .inside { padding-top: 5px; padding-left: 30px;}
 
-.postbox .inside li { list-style: square; }
+.error_monitor_plugin .postbox .inside li { list-style: square; }
 
 #error_monitor-export-form {
     margin: 10px 0;

@@ -16,7 +16,7 @@
  *     along with 404 Error Monitor.  If not, see <http://www.gnu.org/licenses/gpl-3.0.html>.
  */
 ?>
-<div style="width:19%;" class="postbox-container">
+<div style="width:19%;" class="postbox-container error_monitor_plugin">
 	<div class="meta-box-sortables ui-sortable" style="min-height: 120px;"  id="side-sortables">
 		<div class="postbox" id="">
 			<h3 class="hndle"><span>Like this plugin?</span></h3>

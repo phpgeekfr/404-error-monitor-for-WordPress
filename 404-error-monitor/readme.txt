@@ -4,7 +4,7 @@ Donate link:
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
 Tested up to: 3.5.1
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -49,3 +49,8 @@ e.g.
 
 = 1.0.7 =
 * corrected display of url in error list page for single site installations.
+
+= 1.0.8 =
+* fixed too generic css issue
+* fixed issue with unsecure content for HTTPS admin area
+* disabled "delete all" and "export to csv" buttons when there are no errors
