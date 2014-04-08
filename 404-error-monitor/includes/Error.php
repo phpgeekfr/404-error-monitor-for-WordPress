@@ -61,7 +61,7 @@ class errorMonitor_Error {
 		$cleanAfter = errorMonitor_DataTools::getPluginOption('clean_after',null);
 		
 		if($lastClean != null && $cleanAfter != null){
-			$currentTimestamp = mktime();
+			$currentTimestamp = time();
 			$nextClean = $lastClean + ($cleanAfter * 86400);
 			if($currentTimestamp > $nextClean || $force){
 				global $wpdb;

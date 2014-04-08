@@ -74,7 +74,7 @@
 							</div>
 						</div>
 					</div>
-				<?php else:?>
+				<?php elseif((!errorMonitor_DataTools::isNetworkInstall() && current_user_can('manage_options')) ||  is_super_admin()):?>
 					<div style="width:79%;" class="postbox-container">
 						<div class="meta-box-sortables ui-sortable" style="min-height: 120px;" id="normal-sortables">
 							<div class="postbox" id="network_dashboard_right_now">
