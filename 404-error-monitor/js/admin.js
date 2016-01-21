@@ -23,7 +23,8 @@ jQuery(document).ready( function($) {
 		  id: $(this).attr('id')
       }, function(data) {
     	  $('.wrap .error_monitor-message').html('');
-    	  if(data == 0){
+    	  data = JSON.parse(data);
+    	  if(data.status != 'ok'){
     		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while removing entry.</p></div>');
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>Entry <strong>removed </strong> successfully</p></div>');
@@ -48,7 +49,8 @@ jQuery(document).ready( function($) {
 		  blog_id: $(item).attr('id')
       }, function(data) {
     	  $('.wrap .error_monitor-message').html('');
-    	  if(data == 0){
+    	  data = JSON.parse(data);
+    	  if(data.status != 'ok'){
     		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while removing entries.</p></div>');
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>All entries have been <strong>removed</strong> successfully</p></div>');
@@ -69,7 +71,8 @@ jQuery(document).ready( function($) {
 		  action: "deleteBlogErrors"
       }, function(data) {
     	  $('.wrap .error_monitor-message').html('');
-    	  if(data == 0){
+    	  data = JSON.parse(data);
+    	  if(data.status != 'ok'){
     		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while removing entries.</p></div>');
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>All blog entries have been <strong>removed</strong> successfully</p></div>');
@@ -103,10 +106,12 @@ jQuery(document).ready( function($) {
 		  min_hit_count: $("#min_hit_count").val(),
 		  ext_filter: $(form+" #ext_filter").val(),
 		  path_filter: $(form+" #path_filter").val(),
-		  clean_after: $(form+" #clean_after").val()
+		  clean_after: $(form+" #clean_after").val(),
+		  allow_editors: $(form+" #allow_editors").is(":checked")
       }, function(data) {
     	  $('.wrap .error_monitor-message').html('');
-    	  if(data == 0){
+    	  data = JSON.parse(data);
+    	  if(data.status != 'ok'){
     		  $('.wrap .error_monitor-message').html('<div class="error" id="message"><p><strong>Error</strong> while updating settings.</p></div>');
     	  } else {
         	  $('.wrap .error_monitor-message').html('<div class="updated" id="message"><p>Settings <strong>updated</strong> successfully</p></div>');

@@ -19,7 +19,7 @@
  *     Plugin Name: 404 Error Monitor
  *     Plugin URI: http://www.php-geek.fr/plugin-wordpress-404-error-monitor.html
  *     Description: This plugin logs 404 (Page Not Found) errors on your WordPress site. It also logs useful informations like referrer, user address, and error hit count. It is fully compatible with a multisite configuration.
- *     Version: 1.0.8
+ *     Version: 1.1
  *     Author: Bruce Delorme
  *     Author URI: http://www.php-geek.fr
  */
@@ -72,10 +72,11 @@ class errorMonitor {
 	{
 		if(is_network_admin()){ //on est dans le network-admin
 			add_action( 'network_admin_menu', array(&$this,'add_network_admin_pages'));
-		} if(is_admin()) { //on est dans le backoffice du site
+		} elseif(is_admin()) { //on est dans le backoffice du site
 			add_action('admin_menu', array(&$this,'add_admin_pages') );
 		}else { //on est sur une page 
-			add_action( 'wp', array(&$this,'intercept404Errors') );
+		  //@see https://codex.wordpress.org/Plugin_API/Action_Reference
+			add_action( 'shutdown', array(&$this,'intercept404Errors') );
 		}
 	}
 	
@@ -118,7 +119,8 @@ class errorMonitor {
 		errorMonitor_DataTools::addPluginOption('ext_filter','');
 		errorMonitor_DataTools::addPluginOption('path_filter','/wp-admin');
 		errorMonitor_DataTools::addPluginOption('clean_after','60');
-		errorMonitor_DataTools::addPluginOption('last_clean',mktime());
+		errorMonitor_DataTools::addPluginOption('last_clean',time());
+		errorMonitor_DataTools::addPluginOption('allow_editors','1');
 		
 		$this->_activate($networkwide);	
 
@@ -131,14 +133,14 @@ class errorMonitor {
 		errorMonitor_DataTools::deletePluginOption('path_filter');
 		errorMonitor_DataTools::deletePluginOption('clean_after');
 		errorMonitor_DataTools::deletePluginOption('last_clean');
-		
+		errorMonitor_DataTools::deletePluginOption('allow_editors');
 		$this->_deactivate($networkwide);
 	}	
 	
 	function _activate($networkwide) 
 	{
 		if($networkwide){
-			$networkInstallOption = errorMonitor_DataTools::getPluginOption('network-install');
+			$networkInstallOption = errorMonitor_DataTools::isNetworkInstall();
 			if( $networkInstallOption == null || $networkInstallOption == false){
 				errorMonitor_DataTools::addPluginOption('network-install',true);
 			}
@@ -149,28 +151,36 @@ class errorMonitor {
 	
 	function _deactivate($networkwide) 
 	{
-		//@todo faire msg de warning
 		if($networkwide){
 			errorMonitor_DataTools::deletePluginOption('network-install');
 		}
-		errorMonitor_DataTools::_dropTables($networkwide);
 	}
 	
 
 	function add_admin_pages()
 	{
-		if(!errorMonitor_DataTools::getPluginOption('network-install')){
-			add_menu_page('errorMonitor', '404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
-			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'administrator', 'errorMonitorSettings', array(&$this,'add_network_settings'));
+		if(!errorMonitor_DataTools::isNetworkInstall()){
+		    if(errorMonitor_DataTools::getPluginOption("allow_editors") == true && current_user_can('editor')){
+		      add_menu_page('errorMonitor', '404 Error Monitor', 'editor', 'errorMonitor', array(&$this,'error_list_page'));
+		    } else {
+		      add_menu_page('errorMonitor', '404 Error Monitor', 'manage_options', 'errorMonitor', array(&$this,'error_list_page'));
+		    }
+			
+			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'manage_options', 'errorMonitorSettings', array(&$this,'settings_page'));
 		} else {
-			add_options_page('errorMonitor','404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
+		  if(errorMonitor_DataTools::getPluginOption("allow_editors") == true && current_user_can('editor')){
+		    add_options_page('errorMonitor','404 Error Monitor', 'editor', 'errorMonitor', array(&$this,'error_list_page'));
+		  } else {
+		    add_options_page('errorMonitor','404 Error Monitor', 'manage_options', 'errorMonitor', array(&$this,'error_list_page'));
+		  }
+			
 		}
 	}
 	
 	function add_network_admin_pages() {
-		if(errorMonitor_DataTools::getPluginOption('network-install')){
+		if(errorMonitor_DataTools::isNetworkInstall()){
 			add_menu_page('errorMonitor', '404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
-			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'administrator', 'errorMonitorSettings', array(&$this,'add_network_settings'));
+			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'administrator', 'errorMonitorSettings', array(&$this,'settings_page'));
 		}
 	}
 
@@ -180,7 +190,11 @@ class errorMonitor {
 		include_once(ERROR_REPORT_PLUGIN_DIR.'/includes/errorList.php');
 	}
 	
-	function add_network_settings() {
+	/**
+	 * 
+	 * Enter description here ...
+	 */
+	function settings_page() {
 		include_once(ERROR_REPORT_PLUGIN_DIR.'/includes/settings.php');
 	}
 	
@@ -188,7 +202,7 @@ class errorMonitor {
 	{
 		if ( function_exists( 'is_404' ) && is_404() ){
 			$error = new errorMonitor_Error();
-			$error->add($_SERVER["REQUEST_URI"]);
+			$error->add(addslashes($_SERVER["REQUEST_URI"]));
 			$error->clean();
     	}
 	}
@@ -199,98 +213,164 @@ class errorMonitor {
 	 */
 	function deleteError()
 	{
-		$error = new errorMonitor_Error();
-		
-		$errorId = $_POST['id'];
-		if($errorId){
-			echo $error->delete($errorId);
+	  $error = new errorMonitor_Error();    
+      $errorId = $_POST['id'];
+      $return = '';   
+      if(current_user_can('manage_network') && errorMonitor_DataTools::isNetworkInstall()){
+        //le plugin est installé en network et l'utilisateur est super_admin
+        if($errorId){
+		  $return = $error->delete($errorId);
 		}
+  	  }elseif(current_user_can('manage_options') && is_admin()) { 
+        //on est dans le backoffice du site et l'utlisateur est admin
+  	    $currentBlogId = get_current_blog_id();
+  	    if($errorId && $currentBlogId){
+		  $return = $error->delete($errorId,$currentBlogId);
+		}
+  	  }
+  	  
+  	  if(!in_array($return,array('',0,null))){
+  	    echo json_encode(array('status' => 'ok'));
+  	  } else {
+  	    echo json_encode(array('status' =>'nok'));
+  	  }
+      exit(0);
 	}
 	
+	/**
+	 * Ajax response
+	 * Deletes all blogs entries ou all entries for a single blog
+	 */
 	function deleteBlogErrors()
 	{
-		$error = new errorMonitor_Error();
-		$blogId = $_POST['blog_id'];
-		if($blogId){
-			echo $error->deleteAll($blogId);
+      $error = new errorMonitor_Error();    
+      $blogId = $_POST['blog_id'];    
+      $return = '';   
+      if(current_user_can('manage_network') && errorMonitor_DataTools::isNetworkInstall()){
+        //le plugin est installé en network et l'utilisateur est super_admin
+  		if($blogId){
+			$return = $error->deleteAll($blogId);
 		} else {
-			echo $error->deleteAll();
+			$return = $error->deleteAll();
 		}
+  	  }elseif(current_user_can('manage_options') && is_admin()) { 
+        //on est dans le backoffice du site et l'utlisateur est admin
+        if(isset($blogId) && get_current_blog_id() == $blogId){
+			$return = $error->deleteAll($blogId);
+		}
+  	  }
+  	  
+  	  if(!in_array($return,array('',0,null))){
+  	    echo json_encode(array('status' => 'ok'));
+  	  } else {
+  	    echo json_encode(array('status' =>'nok'));
+  	  }
+      exit(0);
 	}
 	
+	/**
+	 * Ajax response
+	 */
 	function updatePluginSettings()
 	{
-		
-		$min_hit_count = $_POST['min_hit_count'];
-		$ext_filter = $_POST['ext_filter'];
-		$clean_after = $_POST['clean_after'];
-		$path_filterString = $_POST['path_filter'];
-		if(!is_numeric($min_hit_count)){
-			$min_hit_count = "0";
-		}
-		$path_filter ='';
-		foreach(preg_split("/((\r?\n)|(\r\n?))/", $path_filterString) as $k => $line){
-			if($line != ""){
-				if($k== 0){
-	    			$path_filter = $line;
-				} else {
-					$path_filter .= ';'.$line;
-				}
-			}
-		} 
-		
-		if($ext_filter != ''){
-			$ext_filter_tmp= array();
-			foreach(explode(',',$ext_filter) as $ext){
-				
-				if(substr($ext,0,1) !='.'){
-					$ext = '.'.$ext;
-				}
-				$ext_filter_tmp[] = $ext;
-			}
-			$ext_filter = implode(',',$ext_filter_tmp);
-		}
-		
-		errorMonitor_DataTools::updatePluginOption('min_hit_count',($min_hit_count != '')?$min_hit_count:null);
-		errorMonitor_DataTools::updatePluginOption('ext_filter',($ext_filter != '')?$ext_filter:null);
-		errorMonitor_DataTools::updatePluginOption('path_filter',($path_filter != '')?$path_filter:null);
-		errorMonitor_DataTools::updatePluginOption('clean_after',($clean_after != '')?$clean_after:null);
-		
-		//clean errors based on updated setting "clean_after"
-		$error = new errorMonitor_Error();
-		$error->clean(true);
-		
-		echo true;
+      if(errorMonitor_DataTools::isNetworkInstall() && !current_user_can('manage_network')){
+        //le plugin est installé en network mais l'utilisateur n'est pas super_admin
+        echo json_encode(array('status' =>'nok'));
+        exit(0);
+  	  }elseif(is_admin() && !current_user_can('manage_options')) { 
+        //on est dans le backoffice du site mais l'utlisateur ne peut pas modifier les options
+        echo json_encode(array('status' =>'nok'));
+        exit(0);
+  	  }
+
+
+      $min_hit_count = $_POST['min_hit_count'];
+      $ext_filter = $_POST['ext_filter'];
+      $clean_after = $_POST['clean_after'];
+      $path_filterString = $_POST['path_filter'];
+      $allow_editors = $_POST['allow_editors']=='true'?true:false;
+
+      if(!is_numeric($min_hit_count)){
+      	$min_hit_count = "0";
+      }
+      
+      $path_filter ='';
+      foreach(preg_split("/((\r?\n)|(\r\n?))/", $path_filterString) as $k => $line){
+      	if($line != ""){
+          if($k== 0){
+            $path_filter = $line;
+          } else {
+            $path_filter .= ';'.$line;
+          }
+      	}
+      } 
+      
+      if($ext_filter != ''){
+      	$ext_filter_tmp= array();
+      	foreach(explode(',',$ext_filter) as $ext){
+      		
+      		if(substr($ext,0,1) !='.'){
+      			$ext = '.'.$ext;
+      		}
+      		$ext_filter_tmp[] = $ext;
+      	}
+      	$ext_filter = implode(',',$ext_filter_tmp);
+      }
+      
+      errorMonitor_DataTools::updatePluginOption('min_hit_count',($min_hit_count != '')?$min_hit_count:null);
+      errorMonitor_DataTools::updatePluginOption('ext_filter',($ext_filter != '')?$ext_filter:null);
+      errorMonitor_DataTools::updatePluginOption('path_filter',($path_filter != '')?$path_filter:null);
+      errorMonitor_DataTools::updatePluginOption('clean_after',($clean_after != '')?$clean_after:null);
+      errorMonitor_DataTools::updatePluginOption('allow_editors',($allow_editors != '')?$allow_editors:null);
+      
+      //clean errors based on updated setting "clean_after"
+      $error = new errorMonitor_Error();
+      $error->clean(true);
+    
+      echo json_encode(array('status' =>'ok'));
+      exit(0);
 	}
 	
 	function exportErrorList()
 	{
-      	header('Content-type: text/csv');
-		header('Content-disposition: attachment;filename=404-error-monitor-export.csv');
+
+      header('Content-type: text/csv');
+      header('Content-disposition: attachment;filename=404-error-monitor-export.csv');
+      
+      $error = new errorMonitor_Error();
+      
+      $itemId = $_GET['item-id'];
+      
+      if($itemId != 'null'){
+      	$blogId = $itemId;
+      } else {
+      	$blogId = null;
+      }
 		
-		$error = new errorMonitor_Error();
-		
-		$itemId = $_GET['item-id'];
-		
-		if($itemId != 'null'){
-			$blogId = $itemId;
-		} else {
-			$blogId = null;
+      $errorsRowset = array();
+      
+      if(current_user_can('manage_network') && errorMonitor_DataTools::isNetworkInstall()){
+        //le plugin est installé en network et l'utilisateur est super_admin
+  		$errorsRowset = $error->getErrorList($blogId);
+  	  }elseif(is_admin()) { 
+        //on est dans le backoffice du site
+        if(isset($blogId) && get_current_blog_id() == $blogId){
+			$errorsRowset = $error->getErrorList($blogId);
 		}
-		$errorsRowset = $error->getErrorList($blogId);
-		
-		$eol = "\n";
-		echo "URL;Count;Referer;Last Error".$eol;
-		foreach($errorsRowset as $row){
-			$domain = $error->getDomain($row);
-			if($row->referer != ""){
-				$referer = $row->referer;
-			} else {
-				$referer = "--";
-			}
-			echo $domain.$row->url.";".$row->count.";".$referer.";".$row->last_error.";".$eol;
-		}
-		die;
+  	  }
+
+      $eol = "\n";
+      echo "URL;Count;Referer;Last Error".$eol;
+      foreach($errorsRowset as $row){
+      	$domain = $error->getDomain($row);
+      	if($row->referer != ""){
+      		$referer = $row->referer;
+      	} else {
+      		$referer = "--";
+      	}
+      	echo $domain.$row->url.";".$row->count.";".$referer.";".$row->last_error.";".$eol;
+      }
+      die;
 	}
 	
 } // end class

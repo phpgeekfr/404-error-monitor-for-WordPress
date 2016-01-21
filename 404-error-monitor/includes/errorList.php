@@ -74,7 +74,7 @@
 							</div>
 						</div>
 					</div>
-				<?php else:?>
+				<?php elseif((!errorMonitor_DataTools::isNetworkInstall() && current_user_can('manage_options')) ||  is_super_admin()):?>
 					<div style="width:79%;" class="postbox-container">
 						<div class="meta-box-sortables ui-sortable" style="min-height: 120px;" id="normal-sortables">
 							<div class="postbox" id="network_dashboard_right_now">
@@ -95,14 +95,31 @@
 	<br class="clear" />
 	<h3>Error list</h3>
 	<?php 
-	$errorsRowset = $error->getErrorList($blog_id);
-	$errorCount = count($errorsRowset);
 	
+	$limitByPage = 100;
+    if(isset($_GET['paged'])){
+        $p = addslashes($_GET['paged']);
+    }else{
+        $p = 1;
+    }
+
+    $offset = (int)($p - 1) * $limitByPage;
+
+	$errorsRowset = $error->getErrorList($blog_id,$limitByPage,$offset);
+	$errorCount = $error->getErrorCount($blog_id);
+	
+	$pagination =  errorMonitor_DataTools::pagination($errorCount,$limitByPage,$p);
 	?>
+
 	<?php if($errorCount != 0):?>
     	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
     		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
     	</form>
+    	<div class="error_monitor_plugin_pagination">
+    	  <?php
+    	    echo $pagination;
+    	  ?>
+    	</div>
     <?php endif;?>
 	<table class="widefat error_monitor-error-list" cellspacing="0">
 		<thead>
@@ -112,14 +129,12 @@
 				<th>Referer</th>
 				<th>Last Error</th>
 				<th style="width: 65px;">
-					<?php if($errorCount != 0):?>
+					<?php if($errorCount != 0 && current_user_can('manage_options')):?>
     					<?php if(!$blog_id):?>
     						<a id="" class="button-primary error_monitor-delete-all" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a>
     					<?php else:?>
     						<span class="error_monitor-delete-all-blog"><a id="<?php echo $blog_id;?>" class="button-primary" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete all</a></span>
     					<?php endif;?>
-    				<?php else:?>
-    				  <?php echo "--";?>
     				<?php endif;?>
 				</th>
 			</tr>
@@ -157,7 +172,11 @@
 						<?php endif;?>
 					</td>
 					<td style="width: 205px;text-align:center;"><?php echo mysql2date(get_option('date_format'), $row->last_error);?>,  <?php echo mysql2date(get_option('time_format'), $row->last_error);?></td>
-					<td  style="text-align:center;"><a class="delete-single-entry button-secondary" id="<?php echo $row->id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete</a></td>
+					<?php if(current_user_can('manage_options')) :?>
+						<td style="text-align:center;">
+							<a class="delete-single-entry button-secondary" id="<?php echo $row->id;?>" href="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php">Delete</a>
+						</td>
+					<?php endif;?>
 				</tr>
 			<?php 
 			 $previousBlogId = $row->blog_id;
@@ -165,6 +184,11 @@
 		</tbody>
 	</table>
 	<?php if($errorCount != 0):?>
+  	<div class="error_monitor_plugin_pagination">
+	  <?php
+	    echo $pagination;
+	  ?>
+	</div>
 	<form id="error_monitor-export-form" action="<?php bloginfo('wpurl'); ?>/wp-admin/admin-ajax.php" method="post">
 		<input type="button" value="Export to csv" class="button-primary" id="export_btn" item-id="<?php echo $blog_id;?>" name="export_btn">
 	</form>

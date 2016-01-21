@@ -3,8 +3,8 @@ Contributors: Bilbud
 Donate link: 
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
-Tested up to: 3.5.1
-Stable tag: 1.0.8
+Tested up to: 4.4.1
+Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -54,3 +54,15 @@ e.g.
 * fixed too generic css issue
 * fixed issue with unsecure content for HTTPS admin area
 * disabled "delete all" and "export to csv" buttons when there are no errors
+
+= 1.0.9 =
+* improved security while saving entries.
+* changed required capacity to view error list and settings page. New capacity required is: manage_options.
+* fixed some minor bugs
+
+= 1.1 =
+* improved security for deleting and exporting entries.
+* added pagination in error list page.
+* 404 entries are no longer deleted on plugin deactivation.
+* not saving 404 errors for redirected posts.
+* added setting option to define if editor users can see and export error list.

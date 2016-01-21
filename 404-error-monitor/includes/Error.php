@@ -25,11 +25,15 @@ class errorMonitor_Error {
 	 * Enter description here ...
 	 * @param unknown_type $errorId
 	 */
-	public function delete($errorId = null) 
+	public function delete($errorId = null,$currentBlogId = null) 
 	{	
 		if($errorId){
 			global $wpdb;
-			return $wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName()." WHERE id='".$errorId."';");
+			if($currentBlogId != null){
+			  return $wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName()." WHERE id='".$errorId."' AND blog_id ='".$currentBlogId."';");
+			} else {
+			  return $wpdb->query("DELETE FROM ".errorMonitor_DataTools::getTableName()." WHERE id='".$errorId."';");
+			}
 		} else {
 			return null;
 		}
@@ -61,7 +65,7 @@ class errorMonitor_Error {
 		$cleanAfter = errorMonitor_DataTools::getPluginOption('clean_after',null);
 		
 		if($lastClean != null && $cleanAfter != null){
-			$currentTimestamp = mktime();
+			$currentTimestamp = time();
 			$nextClean = $lastClean + ($cleanAfter * 86400);
 			if($currentTimestamp > $nextClean || $force){
 				global $wpdb;
@@ -77,7 +81,7 @@ class errorMonitor_Error {
 	/**
 	 * 
 	 * Enter description here ...
-	 * @param unknown_type $url
+	 * @param string $url
 	 */
 	public function add($url)
 	{
@@ -128,9 +132,11 @@ class errorMonitor_Error {
 	/**
 	 * 
 	 * Enter description here ...
-	 * @param unknown_type $blogId
+	 * @param string $blogId
+	 * @param int $limit
+	 * @param int $offset
 	 */
-	public function getErrorList($blogId = null)
+	public function getErrorList($blogId = null, $limit = null, $offset = null)
 	{
 		global $wpdb;
 		
@@ -148,13 +154,52 @@ class errorMonitor_Error {
 				$subQuery2 .= " AND url NOT LIKE '%".$filter."%'";
 		}
 		
+		if($limit != null){
+		  if($offset != null){
+		    $limit = 'LIMIT '.$offset.', '.$limit;
+		  } else {
+		    $limit = 'LIMIT '.$limit;
+		  }
+		} else {
+		  $limit = '';
+		}
 		
 		if($blogId){
-			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+          return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC ".$limit.";");
 		} else {
-			return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
-					
+          return $wpdb->get_results("SELECT * FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC ".$limit.";");		
 		}
+	}
+
+	/**
+	 * 
+	 * @param string $blogId
+	 */
+	public function getErrorCount($blogId = null)
+	{
+		global $wpdb;
+		
+		$pathFilterArray = explode(';',errorMonitor_DataTools::getPluginOption("path_filter",null));
+		$subQuery = '';
+		foreach($pathFilterArray as $filter){
+			if($filter != "")
+				$subQuery .= " AND url NOT LIKE '".$filter."%'";
+		}
+		
+		$ext_filterArray = explode(',',errorMonitor_DataTools::getPluginOption("ext_filter",null));
+		$subQuery2 = '';
+		foreach($ext_filterArray as $filter){
+			if($filter != "")
+				$subQuery2 .= " AND url NOT LIKE '%".$filter."%'";
+		}
+		
+		if($blogId){
+          $out = $wpdb->get_row("SELECT count(id) as errorCount FROM ".errorMonitor_DataTools::getTableName()." WHERE blog_id = $blogId AND count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");
+		} else {
+          $out = $wpdb->get_row("SELECT count(id) as errorCount FROM ".errorMonitor_DataTools::getTableName()."  WHERE count >= ".errorMonitor_DataTools::getPluginOption("min_hit_count",null)." ".$subQuery." ".$subQuery2." ORDER BY blog_id, count DESC;");	
+		}
+
+		return (int) $out->errorCount;
 	}
 	
 	/**

@@ -18,12 +18,20 @@
 ?>
 
 <?php 
-	if (!function_exists('is_admin') || !is_admin()) {
+	if (!function_exists('is_admin') || !is_admin()) {//we are not in admin
 		   ?><div class="wrap">
 		   		<div class="error" id="message"><p>You don't have the right to see this page</p></div>
 		   	</div><?php 
 	    exit();
 	}
+	
+	if (!current_user_can('manage_options')) {//user cannot manage_option (ie: editor role or below)
+		   ?><div class="wrap">
+		   		<div class="error" id="message"><p>You don't have the right to see this page</p></div>
+		   	</div><?php 
+	    exit();
+	}
+	
 	
 	if(function_exists('is_network_admin') && is_network_admin()){
 		if (!function_exists('is_super_admin') || !is_super_admin()) {
@@ -71,6 +79,10 @@
 												<th scope="row">Exluded paths</th>
 												<td><textarea rows="3" id="path_filter" name="path_filter"><?php  foreach (explode(';',errorMonitor_DataTools::getPluginOption("path_filter")) as $line){echo $line."\n";};?></textarea><br />
 												One entry per row.</td>
+											</tr>
+											<tr class="form-field form-required">
+												<th scope="row">Allow editors to see error list</th>
+												<td><input type="checkbox" id="allow_editors" name="allow_editors" value="<?php  echo errorMonitor_DataTools::getPluginOption("allow_editors");?>" <?php  echo errorMonitor_DataTools::getPluginOption("allow_editors")==true?'checked="true"':'';?> /></td>
 											</tr>
 										</tbody>
 									</table>

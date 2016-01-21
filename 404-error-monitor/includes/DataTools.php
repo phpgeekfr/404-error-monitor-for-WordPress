@@ -17,6 +17,11 @@
  */
 ?>
 <?php
+
+if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+  require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+}
+
 class errorMonitor_DataTools {
 
 	const LOG_TABLE = 'errors_404_logs';
@@ -36,7 +41,7 @@ class errorMonitor_DataTools {
 
 	public static function isNetworkInstall()
 	{
-		if(defined('BLOG_ID_CURRENT_SITE')){
+		if(is_multisite() && defined('BLOG_ID_CURRENT_SITE') && is_plugin_active_for_network( ERROR_REPORT_PLUGIN_NAME.'/index.php' )){
 			//check if main blog has network-install option
 			return get_blog_option(BLOG_ID_CURRENT_SITE, ERROR_REPORT_PLUGIN_NAME . '-network-install',false);
 		}else {
@@ -123,10 +128,13 @@ class errorMonitor_DataTools {
 		}
 	}
 	
+	/**
+	 * @deprecated
+	 * @param bool $networkwide
+	 */
 	public static function _dropTables($networkwide) 
 	{
 		global $wpdb;
-		//create table if not present
 		if($networkwide && function_exists('is_super_admin') && is_super_admin()){
 			$wpdb->errorReportTable = $wpdb->base_prefix . self::LOG_TABLE;
 		} else {
@@ -137,4 +145,83 @@ class errorMonitor_DataTools {
 			$wpdb->query( "DROP TABLE`{$wpdb->errorReportTable}`" );
 		}
 	}
+	
+	public static function  pagination($count,$limitByPage,$p)
+	{
+
+	  $pageCount = ceil($count/$limitByPage);
+	  $lpm1 = $pageCount-1;
+	  
+	  $prev = $p - 1;
+      $next = $p + 1;
+
+	  
+	  $current_url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+
+      $pagination = '<span class="displaying-num">' . sprintf( _n( '%s item', '%s items', $count ), number_format_i18n( $count ) ) . '</span>';
+	  
+      $adjacents = 3;
+      if($pageCount > 1){
+
+          //previous button
+          if ($p > 1){
+            $pagination.= '<span class="pagination-item"><a class="next-page" href="'.esc_url( add_query_arg( 'paged', $prev, $current_url ) ).'"><<</a></span>';
+          } else {
+            $pagination.= '<span class="pagination-item disabled"><<</span>';
+          }
+          
+          if ($pageCount < 7 + ($adjacents * 2)){
+              for ($counter = 1; $counter <= $pageCount; $counter++){
+                  if ($counter == $p){
+                    $pagination.= '<span class="pagination-item current">'.$counter.'</span>';
+                  } else {
+                    $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $counter, $current_url ) ).'">'.$counter.'</a></span>';
+                  }
+              }
+          }elseif($pageCount > 5 + ($adjacents * 2)){
+              if($p < 1 + ($adjacents * 2)){
+                  for ($counter = 1; $counter < 4 + ($adjacents * 2); $counter++){
+                      if ($counter == $p)
+                      $pagination.= '<span class="pagination-item current">'.$counter.'</span>';
+                      else
+                      $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $counter, $current_url ) ).'">'.$counter.'</a></span>';
+                  }
+                  $pagination.= '<span class="pagination-item">...</span>';
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $lpm1, $current_url ) ).'">'.$lpm1.'</a></span>';
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $pageCount, $current_url ) ).'">'.$pageCount.'</a></span>';
+              }
+              //in middle; hide some front and some back
+              elseif($pageCount - ($adjacents * 2) > $p && $p > ($adjacents * 2)){
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', 1, $current_url ) ).'">1</a></span>';
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', 2, $current_url ) ).'">2</a></span>';
+                  $pagination.= '<span class="pagination-item">...</span>';
+                  for ($counter = $p - $adjacents; $counter <= $p + $adjacents; $counter++){
+                      if ($counter == $p)
+                      $pagination.= '<span class="pagination-item current">'.$counter.'</span>';
+                      else
+                      $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $counter, $current_url ) ).'">'.$counter.'</a></span>';
+                  }
+                  $pagination.= '<span class="pagination-item">...</span>';
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $lpm1, $current_url ) ).'">'.$lpm1.'</a></span>';
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $pageCount, $current_url ) ).'">'.$pageCount.'</a></span>';
+              }else{
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', 1, $current_url ) ).'">1</a></span>';
+                  $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', 2, $current_url ) ).'">2</a></span>';
+                  $pagination.= '<span class="pagination-item">...</span>';
+                  for ($counter = $pageCount - (2 + ($adjacents * 2)); $counter <= $pageCount; $counter++){
+                      if ($counter == $p)
+                      $pagination.= '<span class="pagination-item current">'.$counter.'</span>';
+                      else
+                      $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $counter, $current_url ) ).'">'.$counter.'</a></span>';
+                  }
+              }
+          }
+          if ($p < $counter - 1){
+            $pagination.= '<span class="pagination-item"><a href="'.esc_url( add_query_arg( 'paged', $next, $current_url ) ).'">>></a></span>';
+          } else {
+            $pagination.= '<span class="pagination-item disabled">>></span>';
+          }
+      }
+      return $pagination;
+  }
 }
