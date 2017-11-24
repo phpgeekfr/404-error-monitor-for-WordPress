@@ -54,7 +54,7 @@ class errorMonitor {
 	 * 
 	 * Class constructor
 	 */
-	function errorMonitor() 
+	public function __construct()
 	{	
 		
 		add_action('admin_init', array(&$this,'init_admin') );
@@ -68,7 +68,7 @@ class errorMonitor {
 	 * 
 	 * Enter description here ...
 	 */
-	function init() 
+	public function init()
 	{
 		if(is_network_admin()){ //on est dans le network-admin
 			add_action( 'network_admin_menu', array(&$this,'add_network_admin_pages'));
@@ -84,7 +84,7 @@ class errorMonitor {
 	 * 
 	 * Enter description here ...
 	 */
-	function init_admin() 
+	public function init_admin()
 	{
 
 		add_action('wp_ajax_deleteError', array(&$this,'deleteError') );
@@ -102,17 +102,17 @@ class errorMonitor {
 	 * Enter description here ...
 	 * @param unknown_type $fileName
 	 */
-	function enqueueScript($fileName)
+	public function enqueueScript($fileName)
 	{
   		wp_enqueue_script( ERROR_REPORT_PLUGIN_NAME, ERROR_REPORT_PLUGIN_URL."/js/".$fileName, array( 'jquery' ) );
 	}
 	
-	function enqueueStyle($fileName)
+	public function enqueueStyle($fileName)
 	{
   		wp_enqueue_style( ERROR_REPORT_PLUGIN_NAME, ERROR_REPORT_PLUGIN_URL."/css/".$fileName );
 	}
 
-	function activate($networkwide) {
+	public function activate($networkwide) {
 		global $wpdb;
 
 		errorMonitor_DataTools::addPluginOption('min_hit_count','0');
@@ -126,7 +126,7 @@ class errorMonitor {
 
 	}
 
-	function deactivate($networkwide) {
+	public function deactivate($networkwide) {
 		global $wpdb;
 		errorMonitor_DataTools::deletePluginOption('min_hit_count');
 		errorMonitor_DataTools::deletePluginOption('ext_filter');
@@ -137,7 +137,7 @@ class errorMonitor {
 		$this->_deactivate($networkwide);
 	}	
 	
-	function _activate($networkwide) 
+	public function _activate($networkwide)
 	{
 		if($networkwide){
 			$networkInstallOption = errorMonitor_DataTools::isNetworkInstall();
@@ -147,17 +147,17 @@ class errorMonitor {
 		}
 		errorMonitor_DataTools::_createTables($networkwide);
 	}
-	
-	
-	function _deactivate($networkwide) 
+
+
+	public function _deactivate($networkwide)
 	{
 		if($networkwide){
 			errorMonitor_DataTools::deletePluginOption('network-install');
 		}
 	}
-	
 
-	function add_admin_pages()
+
+	public function add_admin_pages()
 	{
 		if(!errorMonitor_DataTools::isNetworkInstall()){
 		    if(errorMonitor_DataTools::getPluginOption("allow_editors") == true && current_user_can('editor')){
@@ -176,17 +176,17 @@ class errorMonitor {
 			
 		}
 	}
-	
-	function add_network_admin_pages() {
+
+	public function add_network_admin_pages() {
 		if(errorMonitor_DataTools::isNetworkInstall()){
 			add_menu_page('errorMonitor', '404 Error Monitor', 'administrator', 'errorMonitor', array(&$this,'error_list_page'));
 			add_submenu_page('errorMonitor', 'Settings', 'Settings', 'administrator', 'errorMonitorSettings', array(&$this,'settings_page'));
 		}
 	}
 
-	
-	
-	function error_list_page() {
+
+
+	public function error_list_page() {
 		include_once(ERROR_REPORT_PLUGIN_DIR.'/includes/errorList.php');
 	}
 	
@@ -194,11 +194,11 @@ class errorMonitor {
 	 * 
 	 * Enter description here ...
 	 */
-	function settings_page() {
+	public function settings_page() {
 		include_once(ERROR_REPORT_PLUGIN_DIR.'/includes/settings.php');
 	}
-	
-	function intercept404Errors()
+
+	public function intercept404Errors()
 	{
 		if ( function_exists( 'is_404' ) && is_404() ){
 			$error = new errorMonitor_Error();
@@ -211,7 +211,7 @@ class errorMonitor {
 	/**
 	 * Ajax response
 	 */
-	function deleteError()
+	public function deleteError()
 	{
 	  $error = new errorMonitor_Error();    
       $errorId = $_POST['id'];
@@ -241,7 +241,7 @@ class errorMonitor {
 	 * Ajax response
 	 * Deletes all blogs entries ou all entries for a single blog
 	 */
-	function deleteBlogErrors()
+	public function deleteBlogErrors()
 	{
       $error = new errorMonitor_Error();    
       $blogId = $_POST['blog_id'];    
@@ -271,7 +271,7 @@ class errorMonitor {
 	/**
 	 * Ajax response
 	 */
-	function updatePluginSettings()
+	public function updatePluginSettings()
 	{
       if(errorMonitor_DataTools::isNetworkInstall() && !current_user_can('manage_network')){
         //le plugin est installé en network mais l'utilisateur n'est pas super_admin
@@ -330,8 +330,8 @@ class errorMonitor {
       echo json_encode(array('status' =>'ok'));
       exit(0);
 	}
-	
-	function exportErrorList()
+
+	public function exportErrorList()
 	{
 
       header('Content-type: text/csv');
