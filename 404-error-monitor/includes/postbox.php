@@ -23,8 +23,8 @@
 			<div class="inside">
 				<p>Why not do any or all of the following:</p>
 				<ul>
-					<li><a target="_blank" href="http://www.php-geek.fr">Visit my website</a></li>
-					<li><a target="_blank" href="http://wordpress.org/extend/plugins/404-error-monitor/">Rate it on WordPress.org!</a></li>
+					<li><a target="_blank" href="https://www.php-geek.fr/">Visit my website</a></li>
+					<li><a target="_blank" href="https://wordpress.org/plugins/404-error-monitor/">Rate it on WordPress.org!</a></li>
 				</ul>
 			</div>
 		</div>
