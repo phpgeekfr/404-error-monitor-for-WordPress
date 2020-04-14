@@ -3,7 +3,7 @@ Contributors: Bilbud
 Donate link: 
 Tags: 404, not found, error monitor
 Requires at least: 3.2.1
-Tested up to: 4.4.1
+Tested up to: 5.4
 Stable tag: 1.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
